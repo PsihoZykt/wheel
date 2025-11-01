@@ -1,41 +1,141 @@
-# Auction Service for Streamers (Frontend) – [pointauc.com](https://pointauc.com)
+# PointAuc Frontend (Next.js)
 
-## 📖 User Guide (Comprehensive Feature Reference)
+Платформа для проведения аукционов на стримах Twitch и YouTube.
 
-The documentation below is aimed at streamers and viewers — it explains every feature of Pointauc in detail:
+## 🚀 Технологии
 
-https://pointauc.com/docs/
+- **Next.js 15** - React framework с App Router
+- **TypeScript** - Типизация
+- **Redux Toolkit** - Управление состоянием
+- **Material-UI (MUI)** - UI компоненты
+- **Mantine** - Дополнительные UI компоненты
+- **SCSS/Sass** - Стили
+- **i18next** - Интернационализация
+- **Socket.io** - WebSocket соединения
 
-## 🛠️ Tech Stack (at a glance)
-
-- **React 18 + Vite + TypeScript**
-- **Redux Toolkit** – global state management
-- **Mantine & Material-UI (MUI)** – component libraries (gradually migrating to Mantine)
-- **Socket.IO & Centrifuge** – real-time communication with the backend and external services
-- **i18next** – internationalisation
-- **Sass / CSS-Modules** – styling (CSS-Modules preferred)
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js >= 18** (LTS recommended)
-- **yarn**
-
-### Installation & Development Server
+## 📦 Установка
 
 ```bash
-# install dependencies
+# Установка зависимостей
 yarn install
 
-# start the dev server (Vite)
-yarn dev
+# Или с npm
+npm install
 ```
 
-## 📝 Contribution guidelines
+## 🛠️ Разработка
 
-TBD
+```bash
+# Запуск dev сервера на http://localhost:3000
+yarn dev
 
-## 💡 Suggestions & Bug Reports
+# Сборка для production
+yarn build
 
-Found a bug or have an idea? Please [open an issue](https://github.com/Pointauc/pointauc_frontend/issues).
+# Запуск production сервера
+yarn start
+
+# Линтинг
+yarn lint
+
+# Проверка типов
+yarn type-check
+```
+
+## 📚 Документация
+
+```bash
+# Запуск документации (VitePress)
+yarn docs:dev
+
+# Сборка документации
+yarn docs:build
+
+# Просмотр собранной документации
+yarn docs:preview
+```
+
+## ⚙️ Конфигурация
+
+Создайте файл `.env.local` в корне проекта:
+
+```env
+# Backend API URL
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Документация
+NEXT_PUBLIC_DOCS_BASE_URL=/docs
+```
+
+## 📁 Структура проекта
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── layout.tsx         # Корневой layout
+│   ├── page.tsx           # Главная страница
+│   ├── providers.tsx      # Redux и другие providers
+│   └── [routes]/          # Страницы приложения
+├── components/            # React компоненты
+├── pages/                 # Страничные компоненты (legacy)
+├── api/                   # API клиенты
+├── reducers/              # Redux reducers
+├── services/              # Сервисы
+├── utils/                 # Утилиты
+├── hooks/                 # Custom hooks
+├── models/                # TypeScript типы
+├── constants/             # Константы
+├── styles/                # Глобальные стили
+└── assets/                # Статические ресурсы
+```
+
+## 🔄 Миграция с Vite
+
+Этот проект был мигрирован с Vite на Next.js. Подробности в [MIGRATION.md](./MIGRATION.md).
+
+## 🌐 Основные роуты
+
+- `/` - Главная страница / Аукцион
+- `/settings` - Настройки
+- `/wheel` - Колесо фортуны
+- `/history` - История
+- `/statistic` - Статистика
+- `/requests` - Запросы
+- `/help` - Помощь
+
+## 🔌 Интеграции
+
+- Twitch
+- Donation Alerts (DA)
+- DonatePay
+- YouTube
+
+## 📝 Скрипты
+
+| Команда | Описание |
+|---------|----------|
+| `yarn dev` | Запуск dev сервера |
+| `yarn build` | Сборка для production |
+| `yarn start` | Запуск production сервера |
+| `yarn lint` | Линтинг кода |
+| `yarn type-check` | Проверка TypeScript |
+| `yarn docs:dev` | Запуск документации |
+| `yarn docs:build` | Сборка документации |
+
+## 🤝 Разработка
+
+При разработке учитывайте:
+
+1. **Client Components** - Компоненты с хуками и browser APIs должны иметь `'use client'`
+2. **Server Components** - По умолчанию все компоненты серверные
+3. **API Routes** - Используйте `src/app/api/` для API endpoints
+4. **Environment Variables** - Клиентские переменные должны начинаться с `NEXT_PUBLIC_`
+
+## 📄 Лицензия
+
+MIT
+
+## 👥 Контакты
+
+- Документация: `/help`
+- GitHub: [Ссылка на репозиторий]
