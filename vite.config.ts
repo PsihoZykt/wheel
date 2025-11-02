@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
@@ -7,6 +8,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/wheel/' : '/',
   plugins: [
     react(),
     svgr(),
@@ -16,6 +18,15 @@ export default defineConfig({
       handleHotUpdate({ server }) {
         server.ws.send({ type: 'full-reload' });
         return [];
+      },
+    },
+    {
+      name: 'create-nojekyll',
+      closeBundle() {
+        const distPath = path.join(process.cwd(), 'dist');
+        if (fs.existsSync(distPath)) {
+          fs.writeFileSync(path.join(distPath, '.nojekyll'), '');
+        }
       },
     },
   ],
