@@ -1,5 +1,5 @@
-import { Fragment, useCallback, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import { Container, Drawer, List, ListItemButton, ListItemIcon, ListItemText, styled } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -29,7 +29,15 @@ const menuItems = [
 
 const App: React.FC = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Redirect from / to /wheel
+  useEffect(() => {
+    if (pathname === '/') {
+      navigate(ROUTES.HOME, { replace: true });
+    }
+  }, [pathname, navigate]);
 
   const showDrawer = useCallback(() => {
     openDriverTimeout = setTimeout(() => setIsDrawerOpen(true), 70);
