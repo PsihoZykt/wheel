@@ -9,6 +9,7 @@ import {
   PresetsConfig,
 } from '@models/permanentParticipants.model';
 import { WheelItem } from '@models/wheel.model';
+import { DEFAULT_PERMANENT_PARTICIPANTS_CONFIG } from '@constants/defaultPermanentParticipants';
 
 const STORAGE_KEY = 'permanent_participants';
 const PRESETS_STORAGE_KEY = 'participants_presets';
@@ -25,17 +26,21 @@ const generateId = (): string => {
 class PermanentParticipantsService {
   /**
    * Получить всех постоянных участников из localStorage
+   * Если данных нет, возвращает дефолтный конфиг
    */
   getParticipants(): PermanentParticipant[] {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
-      if (!data) return [];
+      if (!data) {
+        // Возвращаем дефолтный конфиг для новых пользователей
+        return DEFAULT_PERMANENT_PARTICIPANTS_CONFIG.participants;
+      }
 
       const config: PermanentParticipantsConfig = JSON.parse(data);
       return config.participants || [];
     } catch (error) {
       console.error('Ошибка при загрузке постоянных участников:', error);
-      return [];
+      return DEFAULT_PERMANENT_PARTICIPANTS_CONFIG.participants;
     }
   }
 
