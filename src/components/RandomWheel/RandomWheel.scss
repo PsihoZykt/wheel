@@ -8,6 +8,7 @@
   padding-bottom: 0 !important;
   position: relative;
   flex-grow: 1;
+  min-width: fit-content;
 
   &.padding {
     padding-left: 40px !important;
@@ -22,6 +23,7 @@
   overflow-y: hidden;
   width: 100%;
   gap: 56px;
+  min-width: fit-content;
 
   .description-link {
     background-color: transparent;
@@ -152,6 +154,12 @@
 
       &.small {
         width: 60px;
+      }
+      
+      // Увеличенная ширина для селекта с fullWidth
+      &.MuiFormControl-root.MuiFormControl-fullWidth {
+        width: 100%;
+        max-width: 350px;
       }
     }
 

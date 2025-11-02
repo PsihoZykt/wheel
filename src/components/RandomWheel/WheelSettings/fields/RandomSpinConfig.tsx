@@ -1,11 +1,8 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Grid, TextField, Typography } from '@mui/material';
 import { Controller } from 'react-hook-form';
 
 const RandomSpinConfig = () => {
-  const { t } = useTranslation();
-
   return (
     <Grid container alignItems='end' spacing={1}>
       <Controller
@@ -15,7 +12,7 @@ const RandomSpinConfig = () => {
             className='wheel-controls-input small'
             variant='outlined'
             margin='dense'
-            label={t('common.from')}
+            label="От"
             type='number'
             onChange={(e) => (e.target.value === '' ? onChange(null) : onChange(Number(e.target.value)))}
             value={Number.isNaN(value) || value == null ? '' : value}
@@ -30,7 +27,7 @@ const RandomSpinConfig = () => {
             className='wheel-controls-input small'
             variant='outlined'
             margin='dense'
-            label={t('common.to')}
+            label="До"
             type='number'
             onChange={(e) => (e.target.value === '' ? onChange(null) : onChange(Number(e.target.value)))}
             value={Number.isNaN(value) || value == null ? '' : value}

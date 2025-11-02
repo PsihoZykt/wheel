@@ -1,8 +1,6 @@
 import React, { ReactNode, RefObject, useCallback, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { Button } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { Anchor } from '@mantine/core';
 
 import { WheelItem } from '@models/wheel.model.ts';
 import ResizableBracket from '@components/RandomWheel/ResizableBracket/ResizableBracket.tsx';
@@ -12,10 +10,8 @@ import Nesting from '@components/RandomWheel/WheelSettings/fields/Nesting.tsx';
 import { buildGame } from '@components/SlotsBracket/SlotsBracket.tsx';
 import useInitWrapper from '@components/RandomWheel/hooks/useInitWrapper.ts';
 import { DuelHelp } from '@components/RandomWheel/DuelHelp';
-import { DOCS_PAGES, useDocsUrl } from '@constants/docs.constants';
 
 const useBattleRoyal = (controller: RefObject<WheelController>): Wheel.FormatHook => {
-  const { t } = useTranslation();
   const { setValue } = useFormContext<Wheel.Settings>();
   const [_items, setItems] = useState<WheelItem[] | undefined>();
   const items = useMemo(() => _items || [], [_items]);
@@ -52,7 +48,7 @@ const useBattleRoyal = (controller: RefObject<WheelController>): Wheel.FormatHoo
   const renderSubmitButton = (defaultButton: ReactNode) =>
     nextWinner ? (
       <Button className='wheel-controls-button' variant='contained' color='primary' onClick={nextTurn}>
-        {t('wheel.nextDuel')}
+        следующая дуэль
       </Button>
     ) : (
       defaultButton
@@ -86,12 +82,8 @@ const useBattleRoyal = (controller: RefObject<WheelController>): Wheel.FormatHoo
     return duel.map<WheelItem>(({ name, amount, id }) => ({ name, amount, id, color: getWheelColor() }));
   }, [gameOrder, step]);
 
-  const docsUrl = useDocsUrl(DOCS_PAGES.wheel.duel.page);
   const extraSettings = (
     <>
-      <Anchor href={docsUrl} underline='not-hover' target='_blank'>
-        {t('wheel.duel.explanation.button')}
-      </Anchor>
       <DuelHelp />
       <Nesting maxDepth={maxDepth} />
     </>

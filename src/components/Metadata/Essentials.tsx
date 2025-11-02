@@ -1,27 +1,40 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-
-import { isObject } from '@utils/common.utils.ts';
 
 interface MetadataText {
   title: string;
   description: string;
 }
 
-const Essentials = () => {
-  const { t } = useTranslation();
-  const { pathname } = useLocation();
-  const metadata: MetadataText = t(`metadata.${pathname}`, { returnObjects: true, defaultValue: null });
+const metadataMap: Record<string, MetadataText> = {
+  '/': {
+    title: 'Колесо удачи | Определите результаты с помощью вращения колеса',
+    description:
+      'Используйте колесо случайного выбора для определения результатов аукциона с помощью увлекательного вращения. Выбирайте из различных типов колес, чтобы добавить интриги и азарта в ваши живые аукционы.',
+  },
+  '/settings': {
+    title: 'Настройки и интеграции',
+    description:
+      'Настройте параметры аукциона и интеграции с Donation Alerts и DonatePay. Персонализируйте аукцион с помощью автоматизации таймера, изменения внешнего вида и альтернативных типов аукциона.',
+  },
+  '/statistic': {
+    title: 'Статистика аукциона | Отслеживайте активность зрителей и ставки',
+    description: 'Отслеживайте статистику текущего аукциона в реальном времени, включая участие зрителей и ставки',
+  },
+};
 
-  if (!isObject(metadata)) {
+const Essentials = () => {
+  const { pathname } = useLocation();
+  const metadata = metadataMap[pathname];
+
+  if (!metadata) {
     return (
       <>
         <meta name='robots' content='noindex' />
         <title>Pointauc | Live Auction for Streamers</title>
         <meta
           name='description'
-          content='Host interactive auctions where your viewers can bid on games, videos, and more using Twitch channel points or donations.'
+          content='Host interactive auctions where your viewers can bid on games, videos, and more using donations.'
         />
       </>
     );
@@ -29,8 +42,8 @@ const Essentials = () => {
 
   return (
     <>
-      <title>{metadata?.title}</title>
-      <meta name='description' content={metadata?.description} />
+      <title>{metadata.title}</title>
+      <meta name='description' content={metadata.description} />
     </>
   );
 };

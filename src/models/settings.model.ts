@@ -1,6 +1,4 @@
 import { InsertStrategy } from '@enums/insertStrategy.enum';
-
-import { TwitchRewardPresetDto } from './user.model';
 import { BidNameStrategy } from '@enums/bid.enum';
 
 export interface SettingsPreset {
@@ -12,21 +10,12 @@ export interface SettingsPresetLocal extends SettingsPreset {
   data: AucSettingsDto;
 }
 
-export interface TwitchIntegration {
-  isRefundAvailable: boolean;
-  dynamicRewards: boolean;
-  alwaysAddNew: boolean;
-  rewardsPrefix: string;
-}
-
 export interface DonationSettings {
-  pointsRate: number;
-  reversePointsRate: boolean;
   isIncrementActive: boolean;
   incrementTime: number;
 }
 
-export interface Settings extends TwitchIntegration, DonationSettings {
+export interface Settings extends DonationSettings {
   startTime: number;
   timeStep: number;
   isAutoincrementActive: boolean;
@@ -64,8 +53,6 @@ export interface SettingsUpdateRequest {
   id: string;
 }
 
-export interface AucSettingsDto extends Settings {
-  rewardPresets: TwitchRewardPresetDto[];
-}
+export interface AucSettingsDto extends Settings {}
 
 export type SettingsForm = Partial<AucSettingsDto>;

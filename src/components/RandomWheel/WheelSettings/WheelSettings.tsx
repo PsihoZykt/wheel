@@ -1,11 +1,8 @@
-import { Anchor } from '@mantine/core';
 import { Checkbox, FormControlLabel, Grid } from '@mui/material';
 import { ReactNode } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Trans, useTranslation } from 'react-i18next';
 
 import { DropoutVariant } from '@components/BaseWheel/BaseWheel.tsx';
-import { FirstTimeHelpNotification } from '@components/FirstTimeHelpNotification';
 import LoadingButton from '@components/LoadingButton/LoadingButton.tsx';
 import { DropoutHelp } from '@components/RandomWheel/DropoutHelp';
 import NewDropoutDescription from '@components/RandomWheel/NewDropoutDescription/NewDropoutDescription.tsx';
@@ -17,8 +14,11 @@ import RandomSpinSwitch from '@components/RandomWheel/WheelSettings/fields/Rando
 import SpinTimeField from '@components/RandomWheel/WheelSettings/fields/SpinTime.tsx';
 import SplitField from '@components/RandomWheel/WheelSettings/fields/Split.tsx';
 import WheelFormatField from '@components/RandomWheel/WheelSettings/fields/WheelFormat.tsx';
-import { DOCS_PAGES, useDocsUrl } from '@constants/docs.constants';
+import MusicSettingsField from '@components/RandomWheel/WheelSettings/fields/MusicSettings.tsx';
 import { WheelFormat } from '@constants/wheel.ts';
+
+import SuddenSpinSettingsField from './fields/SuddenSpinSettings';
+import PermanentParticipantsField from './fields/PermanentParticipants';
 
 interface WheelSettingsProps {
   nextWinner?: string;
@@ -31,7 +31,6 @@ interface WheelSettingsProps {
 
 const WheelSettings = (props: WheelSettingsProps) => {
   const { isLoadingSeed, direction = 'column', controls, children, renderSubmitButton } = props;
-  const { t } = useTranslation();
   const {
     formState: { isSubmitting },
   } = useFormContext<Wheel.Settings>();
@@ -48,23 +47,12 @@ const WheelSettings = (props: WheelSettingsProps) => {
       color='primary'
       type='submit'
     >
-      {isSubmitting ? t('wheel.spinning') : t('wheel.spin')}
+      {isSubmitting ? 'Крутимся...' : 'Крутить'}
     </LoadingButton>
   );
 
-  const docsUrl = useDocsUrl(DOCS_PAGES.wheel.settings.page);
-
   return (
     <Grid container spacing={2} direction={direction} flexGrow={1} className='settings'>
-      <FirstTimeHelpNotification
-        featureKey='wheelSettingsHelpSeen'
-        message={
-          <Trans
-            i18nKey='wheel.helpNotification'
-            components={{ 1: <Anchor href={docsUrl} underline='not-hover' target='_blank' />, 2: <b /> }}
-          />
-        }
-      />
       <Grid container style={{ gap: 8 }} direction='column' size={direction === 'row' ? 6 : undefined}>
         <Grid container className='wheel-controls-row' spacing={1}>
           {renderSubmitButton ? renderSubmitButton(submitButton) : submitButton}
@@ -87,20 +75,9 @@ const WheelSettings = (props: WheelSettingsProps) => {
         )}
         <div>{children}</div>
         {controls.split && <SplitField />}
-        {controls.randomOrg && (
-          <FormControlLabel
-            control={
-              <Controller
-                name='useRandomOrg'
-                render={({ field: { value, onChange } }) => (
-                  <Checkbox checked={value} onChange={(_, checked) => onChange(checked)} color='primary' />
-                )}
-              />
-            }
-            label={t('wheel.useRandomOrg')}
-            className='wheel-controls-checkbox'
-          />
-        )}
+        <MusicSettingsField />
+        <SuddenSpinSettingsField />
+        <PermanentParticipantsField />
         {/*{elements.randomPace && (*/}
         {/*  <>*/}
         {/*    <div className='wheel-controls-row'>*/}

@@ -17,7 +17,7 @@ interface Props {
 }
 
 const Item = ({ item, disabled, total, actionable }: Props) => {
-  const { name, amount, color } = item;
+  const { name, amount, color, image } = item;
   const chance = useMemo(() => ((amount / total) * 100).toFixed(1), [amount, total]);
   const { controller } = useContext(WheelContext);
 
@@ -35,25 +35,35 @@ const Item = ({ item, disabled, total, actionable }: Props) => {
     <Grid
       container
       alignItems='center'
-      className={classNames('wheel-preview-item', { disabled })}
+      className={classNames('wheel-preview-item', { disabled, 'has-image': !!image })}
       direction='row'
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
     >
+      <div className='color'>
+        {disabled ? (
+          <div />
+        ) : (
+          <>
+            {image ? (
+              <div
+                className='image-background'
+                style={{
+                  backgroundImage: `url(${image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+            ) : (
+              <div style={{ color }} />
+            )}
+          </>
+        )}
+      </div>
       <Grid className='name'>{name}</Grid>
       <Grid className='amount'>{amount}</Grid>
       <Divider orientation='vertical' />
       <Grid className='chance'>{chance + ' %'}</Grid>
-      <Grid>
-        <div className='color'>
-          {!disabled && (
-            <>
-              {actionable && <HighlightIcon className='find-icon' />}
-              <div style={{ color }} />
-            </>
-          )}
-        </div>
-      </Grid>
     </Grid>
   );
 };

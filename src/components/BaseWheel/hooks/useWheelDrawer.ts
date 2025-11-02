@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import { Key } from 'react';
+import { Key, useRef } from 'react';
 
 import { WheelItem, WheelItemWithAngle } from '@models/wheel.model.ts';
 import { fitText } from '@utils/common.utils.ts';
@@ -41,7 +41,11 @@ const selectorAngle = (Math.PI / 2) * 3;
 
 const colorGetter = (item: WheelItem) => item.color || '#000';
 
+// Кэш для загруженных изображений
+const imageCache = new Map<string, HTMLImageElement>();
+
 export const useWheelDrawer = (): Result => {
+  const imagesLoadedRef = useRef<Set<string>>(new Set());
   const drawText = (
     ctx: CanvasRenderingContext2D,
     center: number,
@@ -79,20 +83,110 @@ export const useWheelDrawer = (): Result => {
     item: WheelItemWithAngle,
     pieEdgeDefault?: { x: number; y: number },
     getColor = colorGetter,
+    applyGrayscale = false,
   ): void => {
-    const { startAngle, endAngle } = item;
-    ctx.fillStyle = getColor(item);
-    ctx.strokeStyle = '#eee';
-    ctx.lineWidth = borderWidth;
+    const { startAngle, endAngle, image } = item;
 
     const pieEdge = pieEdgeDefault || { x: center, y: center };
-    const radius = center - ctx.lineWidth;
+    const radius = center - borderWidth;
 
+    // Если есть изображение и НЕ нужен grayscale, используем его
+    if (image && !applyGrayscale) {
+      // Проверяем, есть ли изображение в кэше
+      let img = imageCache.get(image);
+
+      if (!img) {
+        // Создаем новое изображение и добавляем в кэш
+        img = new Image();
+        img.src = image;
+        imageCache.set(image, img);
+
+        // Если изображение еще не загружено, используем цвет
+        if (!imagesLoadedRef.current.has(image)) {
+          img.onload = () => {
+            imagesLoadedRef.current.add(image);
+          };
+          // Временно используем цвет
+          ctx.fillStyle = getColor(item);
+          ctx.beginPath();
+          ctx.moveTo(pieEdge.x, pieEdge.y);
+          ctx.arc(center, center, radius, startAngle, endAngle);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      // Если изображение загружено, рисуем его
+      if (img.complete && img.naturalWidth > 0) {
+        // Сохраняем текущее состояние контекста
+        ctx.save();
+
+        // Создаем путь для сектора и устанавливаем его как область отсечения
+        ctx.beginPath();
+        ctx.moveTo(pieEdge.x, pieEdge.y);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.clip(); // Ограничиваем рисование формой сектора
+
+        // Создаем временный canvas для масштабирования изображения
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+
+        if (tempCtx) {
+          // Устанавливаем размер временного canvas равным размеру сектора
+          const sectorDiameter = radius * 2;
+          tempCanvas.width = sectorDiameter;
+          tempCanvas.height = sectorDiameter;
+
+          // Рисуем изображение на весь временный canvas
+          tempCtx.drawImage(img, 0, 0, sectorDiameter, sectorDiameter);
+
+          // Создаем паттерн из временного canvas
+          const pattern = ctx.createPattern(tempCanvas, 'no-repeat');
+
+          if (pattern) {
+            // Вычисляем центр сектора и угол поворота
+            const centerAngle = (startAngle + endAngle) / 2;
+
+            // Применяем трансформации
+            ctx.translate(center, center);
+            ctx.rotate(centerAngle - Math.PI / 2); // -PI/2 чтобы изображение было "вверх"
+            ctx.translate(-center, -center);
+
+            // Заполняем сектор паттерном
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, center * 2, center * 2);
+          }
+        }
+
+        // Восстанавливаем контекст (убирает clip и трансформации)
+        ctx.restore();
+      } else {
+        // Если изображение не загружено, используем цвет
+        ctx.fillStyle = getColor(item);
+        ctx.beginPath();
+        ctx.moveTo(pieEdge.x, pieEdge.y);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else {
+      // Если изображения нет ИЛИ нужен grayscale - используем серый цвет
+      ctx.fillStyle = applyGrayscale ? tinycolor('#808080').toHexString() : getColor(item);
+      ctx.beginPath();
+      ctx.moveTo(pieEdge.x, pieEdge.y);
+      ctx.arc(center, center, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Рисуем обводку (после fill, но перед текстом)
+    ctx.strokeStyle = '#eee';
+    ctx.lineWidth = borderWidth;
     ctx.beginPath();
     ctx.moveTo(pieEdge.x, pieEdge.y);
     ctx.arc(center, center, radius, startAngle, endAngle);
     ctx.closePath();
-    ctx.fill();
     ctx.moveTo(pieEdge.x, pieEdge.y);
     ctx.stroke();
   };
@@ -104,7 +198,7 @@ export const useWheelDrawer = (): Result => {
 
     if (ctx) {
       clear && ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-      items.forEach((item) => drawSlice(ctx, radius, item, undefined, getColor));
+      items.forEach((item) => drawSlice(ctx, radius, item, undefined, getColor, false));
       items.forEach((item) => drawText(ctx, radius, item));
     }
 
@@ -117,15 +211,41 @@ export const useWheelDrawer = (): Result => {
         name: 'pointer',
         amount: 0,
       };
-      drawSlice(pointerCtx, radius, preset, { x: radius, y: 45 });
+      drawSlice(pointerCtx, radius, preset, { x: radius, y: 45 }, colorGetter, false);
     }
   };
 
   const highlightItem: HighlightItemFunc = (id, items, wheelCanvas, pointerCanvas) => {
-    const getColor = (item: WheelItem) =>
-      item.id === id ? item.color : tinycolor(item.color).greyscale().toHexString();
+    const ctx = wheelCanvas.getContext('2d');
+    const pointerCtx = pointerCanvas.getContext('2d');
+    const radius = Number(wheelCanvas.width) / 2;
 
-    drawWheel({ items, wheelCanvas, pointerCanvas, getColor });
+    if (ctx) {
+      ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+      items.forEach((item) => {
+        const isHighlighted = item.id === id;
+        const getColor = (item: WheelItem) =>
+          isHighlighted ? item.color : tinycolor(item.color).greyscale().toHexString();
+        const applyGrayscale = !isHighlighted && !!item.image;
+
+        drawSlice(ctx, radius, item, undefined, getColor, applyGrayscale);
+      });
+
+      items.forEach((item) => drawText(ctx, radius, item));
+    }
+
+    if (pointerCtx) {
+      const preset: WheelItemWithAngle = {
+        startAngle: selectorAngle - 0.12,
+        endAngle: selectorAngle + 0.12,
+        color: '#353535',
+        id: 'pointer',
+        name: 'pointer',
+        amount: 0,
+      };
+      drawSlice(pointerCtx, radius, preset, { x: radius, y: 45 }, colorGetter, false);
+    }
   };
 
   const eatAnimation: EatAnimationFunc = (id, items, wheelCanvas, pointerCanvas, duration = 500) => {

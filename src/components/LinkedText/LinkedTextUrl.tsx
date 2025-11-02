@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ActionIcon, Anchor, Group, Modal, Text, Button, Stack, Tooltip } from '@mantine/core';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import { addAlert } from '@reducers/notifications/notifications';
@@ -17,7 +16,6 @@ interface LinkedTextUrlProps {
 }
 
 const LinkedTextUrl = ({ href, content, copyable = false, linkProps = {} }: LinkedTextUrlProps) => {
-  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [showWarningModal, setShowWarningModal] = useState(false);
 
@@ -39,7 +37,7 @@ const LinkedTextUrl = ({ href, content, copyable = false, linkProps = {} }: Link
         dispatch(
           addAlert({
             type: AlertTypeEnum.Info,
-            message: t('common.linkCopied'),
+            message: 'Ссылка скопирована',
           }),
         );
       })
@@ -47,7 +45,7 @@ const LinkedTextUrl = ({ href, content, copyable = false, linkProps = {} }: Link
         dispatch(
           addAlert({
             type: AlertTypeEnum.Error,
-            message: t('common.copyFailed'),
+            message: 'Не удалось скопировать',
           }),
         );
       });
@@ -69,7 +67,7 @@ const LinkedTextUrl = ({ href, content, copyable = false, linkProps = {} }: Link
     <>
       <Group gap='xs' wrap='nowrap' component='span'>
         {copyable && (
-          <Tooltip label={t('common.copyLink')}>
+          <Tooltip label="Скопировать ссылку">
             <ActionIcon size='lg' variant='subtle' c='white' onClick={handleCopy}>
               <ContentCopyIcon fontSize='large' />
             </ActionIcon>
@@ -83,21 +81,21 @@ const LinkedTextUrl = ({ href, content, copyable = false, linkProps = {} }: Link
       <Modal
         opened={showWarningModal}
         onClose={() => setShowWarningModal(false)}
-        title={t('common.externalLinkWarning')}
+        title="⚠️ Предупреждение о внешней ссылке"
         centered
         size='lg'
       >
         <Stack gap='md'>
-          <Text>{t('common.externalLinkDisclaimer')}</Text>
+          <Text>Будьте осторожны при переходе по неизвестным ссылкам. Продолжайте, только если доверяете этому источнику.</Text>
           <Text fw={500} c='orange'>
             {href}
           </Text>
           <Group justify='flex-end' gap='sm'>
             <Button variant='outline' onClick={() => setShowWarningModal(false)}>
-              {t('common.cancel')}
+              Отменить
             </Button>
             <Button color='orange' onClick={handleConfirmNavigation} leftSection={<OpenInNewIcon fontSize='small' />}>
-              {t('common.openLink')}
+              Открыть ссылку
             </Button>
           </Group>
         </Stack>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Stack } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 
 import LinkedText from '@components/LinkedText/LinkedText.tsx';
+import { getRandomSarcasticPhrase } from '@constants/sarcasticPhrases.ts';
 
 import styles from './WinnerBackdropName.module.css';
 
@@ -16,6 +17,9 @@ const WinnerBackdropName = ({ name, dropout = false, winnerName }: WinnerBackdro
   const [showWinner, setShowWinner] = useState(false);
   const winnerNameRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
+
+  // Генерируем саркастическую фразу один раз при монтировании
+  const sarcasticPhrase = useMemo(() => getRandomSarcasticPhrase(), []);
 
   useEffect(() => {
     if (winnerName && dropout) {
@@ -42,6 +46,11 @@ const WinnerBackdropName = ({ name, dropout = false, winnerName }: WinnerBackdro
           <LinkedText copyable>{name}</LinkedText>
         </div>
       </div>
+      {!dropout && (
+        <Text size='lg' c='dimmed' fs='italic' mt='xs'>
+          {sarcasticPhrase}
+        </Text>
+      )}
       {showWinner && winnerName && (
         <div className={styles.winnerName} ref={onWinnerRef}>
           <LinkedText copyable>{winnerName}</LinkedText>

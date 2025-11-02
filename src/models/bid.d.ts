@@ -1,7 +1,7 @@
 namespace Bid {
   import { ReactNode } from 'react';
 
-  import { Purchase, PurchaseLog } from '@reducers/Purchases/Purchases.ts';
+  import { Purchase, PurchaseLog } from '@models/purchases.model.ts';
   import { GlobalActionConfig } from '@components/BidsManagementConfirmation/actions/Global.tsx';
   import { LotActionConfig } from '@components/BidsManagementConfirmation/actions/Lot.tsx';
 

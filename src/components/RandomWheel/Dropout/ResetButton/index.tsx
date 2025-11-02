@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import { IconRefresh } from '@tabler/icons-react';
 import { Group, Modal, Stack, Text } from '@mantine/core';
@@ -9,7 +8,6 @@ interface ResetButtonProps {
 }
 
 const ResetButton = (props: ResetButtonProps) => {
-  const { t } = useTranslation();
   const { onClick } = props;
 
   const [opened, setOpened] = useState(false);
@@ -23,22 +21,22 @@ const ResetButton = (props: ResetButtonProps) => {
         color='primary'
         endIcon={<IconRefresh size={18} style={{ marginBottom: 2 }} />}
       >
-        {t('common.reset')}
+        Обнулить
       </Button>
 
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={t('wheel.dropout.reset.modal.title')}
+        title="Сбросить колесо?"
         centered
         size='sm'
       >
         <Stack gap='xs'>
-          <Text>{t('wheel.dropout.reset.modal.description')}</Text>
+          <Text>Это действие вернет всех участников обратно в колесо.</Text>
           <Group justify='flex-end'>
-            <Button onClick={() => setOpened(false)}>{t('common.cancel')}</Button>
+            <Button onClick={() => setOpened(false)}>Отменить</Button>
             <Button onClick={onClick} variant='contained' color='primary'>
-              {t('common.reset')}
+              Обнулить
             </Button>
           </Group>
         </Stack>

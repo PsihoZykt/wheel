@@ -1,8 +1,3 @@
-export enum CamilleList {
-  Games = 'subday',
-  Movies = 'submovie',
-}
-
 export interface RequestsListInfo {
   name: string;
   uuid: string;

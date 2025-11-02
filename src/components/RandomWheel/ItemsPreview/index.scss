@@ -12,6 +12,8 @@
   flex-basis: 0;
   gap: 8px;
   padding-bottom: 8px;
+  min-width: 300px;
+  flex-shrink: 0;
 
   .wheel-controls-checkbox .MuiFormControlLabel-label {
     font-size: 1.1rem;
@@ -19,6 +21,7 @@
 
   &.collapsed {
     flex-grow: 1;
+    min-width: auto;
 
     .wheel-preview-collapse-button {
       transform: scale(-1, 1);

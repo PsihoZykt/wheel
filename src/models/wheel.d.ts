@@ -12,7 +12,6 @@ namespace Wheel {
     randomSpinConfig: { min: number; max: number };
     randomSpinEnabled: boolean;
 
-    useRandomOrg: boolean;
     format: WheelFormat;
     paceConfig: RandomPaceConfig;
     split: number;
@@ -23,13 +22,20 @@ namespace Wheel {
     dropoutVariant: DropoutVariant;
 
     coreImage?: string | null;
+
+    // Настройки музыки
+    musicTrackId?: string | null; // ID трека из списка или 'random'
+    musicEnabled?: boolean;
+
+    // Настройки резкого докручивания
+    suddenSpinEnabled?: boolean; // Включить резкое докручивание
+    suddenSpinProbability?: number; // Вероятность срабатывания (0-100)
   }
 
   interface SettingControls {
     mode: boolean;
     split: boolean;
     randomPace: boolean;
-    randomOrg: boolean;
     import: boolean;
   }
 

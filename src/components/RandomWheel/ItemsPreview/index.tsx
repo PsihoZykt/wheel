@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import { Checkbox, FormControlLabel, IconButton, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { useWatch } from 'react-hook-form';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import classNames from 'classnames';
@@ -24,8 +23,6 @@ const ItemsPreview = ({ allItems, activeItems }: Props) => {
   const [hideInactive, setHideInactive] = useState(false);
   const [collapsed, setCollapsed] = useStorageState('wheel.itemsPreview.collapsed', false);
   const listContainer = useRef<HTMLDivElement>(null);
-
-  const { t } = useTranslation();
 
   const activeMap = useMemo(
     () =>
@@ -54,7 +51,7 @@ const ItemsPreview = ({ allItems, activeItems }: Props) => {
               control={
                 <Checkbox checked={hideInactive} onChange={(e) => setHideInactive(e.target.checked)} color='primary' />
               }
-              label={t('wheel.hideInactive')}
+              label="Скрыть выбывшие лоты"
               className='wheel-controls-checkbox'
             />
           )}
@@ -84,7 +81,7 @@ const ItemsPreview = ({ allItems, activeItems }: Props) => {
             </AutoSizer>
           </Grid>
           <Grid>
-            <Typography fontSize='1.1rem'>{t('wheel.totalItems', { amount: activeItems.length })}</Typography>
+            <Typography fontSize='1.1rem'>Участников в колесе - {activeItems.length}</Typography>
           </Grid>
         </>
       )}

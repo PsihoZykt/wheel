@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button, TextField } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { Group, Modal, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import ImageIcon from '@mui/icons-material/Image';
@@ -9,11 +8,14 @@ import BlockIcon from '@mui/icons-material/Block';
 import './ImageLinkInput.scss';
 
 interface ImageLinkInputProps {
-  buttonTitle: string;
+  buttonTitle?: string;
   onChange: (imageLink: string) => void;
   onModalOpenChange?: (isOpened: boolean) => void;
   dialogTitle?: string;
   buttonClass?: string;
+  isOpened?: boolean;
+  onOpen?: () => void;
+  hideButton?: boolean;
 }
 
 const ImageLinkInput: React.FC<ImageLinkInputProps> = ({
@@ -22,20 +24,31 @@ const ImageLinkInput: React.FC<ImageLinkInputProps> = ({
   buttonClass,
   onChange,
   onModalOpenChange,
+  isOpened: externalIsOpened,
+  onOpen,
+  hideButton = false,
 }) => {
-  const { t } = useTranslation();
-  const [isInputOpened, setIsInputOpened] = useState(false);
+  const [internalIsOpened, setInternalIsOpened] = useState(false);
   const [isCorrectUrl, setIsCorrectUrl] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
+  const isInputOpened = externalIsOpened !== undefined ? externalIsOpened : internalIsOpened;
+
   const changeModalState = (isOpened: boolean): void => {
-    setIsInputOpened(isOpened);
+    if (externalIsOpened === undefined) {
+      setInternalIsOpened(isOpened);
+    }
     onModalOpenChange?.(isOpened);
   };
 
   const toggleDialog = (): void => {
     setIsCorrectUrl(true);
-    changeModalState(!isInputOpened);
+    if (isInputOpened) {
+      changeModalState(false);
+    } else {
+      onOpen?.();
+      changeModalState(true);
+    }
   };
 
   const isImage = (url: string): Promise<Event> =>
@@ -91,27 +104,29 @@ const ImageLinkInput: React.FC<ImageLinkInputProps> = ({
               </Dropzone.Reject>
               <div>
                 <Text size='lg' inline>
-                  {t('common.moveFileOrClick')}
+                  Перетащите сюда файл или нажмите
                 </Text>
               </div>
             </Group>
           </Dropzone>
           <Text size='xl' ta='center'>
-            {t('common.or')}
+            Или
           </Text>
           <TextField
             disabled={isUploading}
             onPaste={handleLinkPaste}
-            placeholder={t('common.insertImageLink')}
+            placeholder='Вставьте ссылку на изображение...'
             error={!isCorrectUrl}
-            helperText={!isCorrectUrl ? t('common.incorrectLink') : undefined}
+            helperText={!isCorrectUrl ? 'Неверная ссылка' : undefined}
             variant='outlined'
           />
         </Stack>
       </Modal>
-      <Button variant='outlined' color='primary' onClick={toggleDialog} className={buttonClass}>
-        {buttonTitle}
-      </Button>
+      {!hideButton && (
+        <Button variant='outlined' color='primary' onClick={toggleDialog} className={buttonClass}>
+          {buttonTitle}
+        </Button>
+      )}
     </>
   );
 };

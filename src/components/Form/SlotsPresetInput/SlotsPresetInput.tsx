@@ -1,6 +1,5 @@
 import { FC, ReactNode, useState } from 'react';
 import { DropzoneArea } from 'react-mui-dropzone';
-import { Trans, useTranslation } from 'react-i18next';
 import {
   Anchor,
   Button,
@@ -23,7 +22,6 @@ import { Link } from 'react-router-dom';
 
 import { parseSlotsPreset } from '@utils/slots.utils.ts';
 import { Slot } from '@models/slot.model.ts';
-import { DOCS_PAGES, useDocsUrl } from '@constants/docs.constants';
 import './SlotsPresetInput.scss';
 
 interface SlotsPresetInputProps {
@@ -35,7 +33,6 @@ interface SlotsPresetInputProps {
 }
 
 const SlotsPresetInput: FC<SlotsPresetInputProps> = ({ onChange, buttonTitle, buttonClass, dialogTitle, hint }) => {
-  const { t } = useTranslation();
   const [isInputOpened, setIsInputOpened] = useState<boolean>(false);
   const [saveSlots, setSaveSlots] = useState<boolean>(false);
   const [manualInput, setManualInput] = useState<string>('');
@@ -69,9 +66,12 @@ const SlotsPresetInput: FC<SlotsPresetInputProps> = ({ onChange, buttonTitle, bu
     closeDialog();
   };
 
-  const importRules = t('wheel.import.rules', { returnObjects: true }) as string[];
-
-  const docsUrl = useDocsUrl(DOCS_PAGES.wheel.settings.chapters.import);
+  const importRules = [
+    'Простой текстовый файл (расширение не играет роли)',
+    'Позиции разделены новой строкой',
+    'Вы можете указать стоимость через запятую - "Имя,123"',
+    '<1>Более подробное описание и примеры</1>'
+  ];
 
   return (
     <div className='slots-preset-input'>
@@ -80,20 +80,17 @@ const SlotsPresetInput: FC<SlotsPresetInputProps> = ({ onChange, buttonTitle, bu
         onClose={toggleDialog}
         size='xxl'
         centered
-        title={dialogTitle ?? t('wheel.import.title')}
+        title={dialogTitle ?? 'Импорт участников'}
       >
         <Grid align='flex-start' gutter='xl'>
           <Grid.Col span={5}>
             <Stack>
-              <Title order={5}>{t('wheel.import.rulesTitle')}</Title>
+              <Title order={5}>Правила импорта</Title>
               <List>
                 {importRules.map((rule: string, index: number) => (
                   <List.Item key={index}>
                     <Text size='sm' c='dimmed'>
-                      <Trans
-                        i18nKey={`wheel.import.rules.${index}`}
-                        components={{ 1: <Anchor href={docsUrl} underline='not-hover' target='_blank' /> }}
-                      />
+                      {rule}
                     </Text>
                   </List.Item>
                 ))}
@@ -115,22 +112,22 @@ const SlotsPresetInput: FC<SlotsPresetInputProps> = ({ onChange, buttonTitle, bu
                   </Dropzone.Reject>
                   <div>
                     <Text size='lg' inline>
-                      {t('common.moveFileOrClick')}
+                      Перетащите сюда файл или нажмите
                     </Text>
                   </div>
                 </Group>
               </Dropzone>
               <Textarea
                 rows={14}
-                placeholder={t('wheel.typeParticipants')}
+                placeholder="Или введите участников вручную"
                 value={manualInput}
                 onChange={(e) => setManualInput(e.target.value)}
               />
               <Group justify='space-between' align='center'>
-                <Checkbox checked={saveSlots} onChange={handleSaveSlotsChange} label={t('wheel.addLotsToAuc')} />
-                <Tooltip label={t('wheel.import.submitDisabled')} disabled={!!manualInput}>
+                <Checkbox checked={saveSlots} onChange={handleSaveSlotsChange} label="Сохранить лоты в аукцион" />
+                <Tooltip label="Введите участников" disabled={!!manualInput}>
                   <Button onClick={submit} disabled={!manualInput}>
-                    {t('common.apply')}
+                    Применить
                   </Button>
                 </Tooltip>
               </Group>

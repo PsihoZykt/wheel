@@ -6,6 +6,8 @@ import CustomEase from '@utils/CustomEase';
 import { random } from '@utils/common.utils.ts';
 import { SPIN_PATH } from '@constants/wheel.ts';
 
+import { useWheelMusic } from './useWheelMusic';
+
 window.gsap = gsap;
 
 interface Result {
@@ -15,6 +17,10 @@ interface Result {
 interface Props {
   wheelCanvas: RefObject<HTMLCanvasElement>;
   onSpin: (rotate: number) => void;
+  musicTrackId?: string | null;
+  musicEnabled?: boolean;
+  suddenSpinEnabled?: boolean;
+  suddenSpinProbability?: number;
 }
 
 const buildSpinPaceCurve = (
@@ -29,7 +35,16 @@ const buildRandomCurve = (): string => {
   return buildSpinPaceCurve(endGuide, middleGuide);
 };
 
-export const useWheelAnimator = ({ wheelCanvas, onSpin }: Props): Result => {
+export const useWheelAnimator = ({
+  wheelCanvas,
+  onSpin,
+  musicTrackId,
+  musicEnabled = true,
+  suddenSpinEnabled = false,
+  suddenSpinProbability = 50,
+}: Props): Result => {
+  const { playMusic, stopMusic, playEndSound } = useWheelMusic({ musicTrackId, enabled: musicEnabled });
+
   const animate = useCallback<Result['animate']>(
     (rotation, duration) => {
       return new Promise<number>((resolve) => {
@@ -38,13 +53,51 @@ export const useWheelAnimator = ({ wheelCanvas, onSpin }: Props): Result => {
           const startRotation = rotationMatch ? Number(rotationMatch[1]) : 0;
           const endPosition = rotation + startRotation;
 
+          // Запускаем музыку при начале вращения
+          playMusic();
+
           gsap.to(wheelCanvas.current, {
             duration,
             ease: CustomEase.create('custom', SPIN_PATH, {
               onUpdate: (progress: number) => onSpin(startRotation + rotation * progress),
             }),
             onComplete: () => {
-              resolve(endPosition);
+              // Проверяем, нужно ли добавить резкое докручивание
+              const shouldSuddenSpin = suddenSpinEnabled && Math.random() * 100 < suddenSpinProbability;
+
+              if (shouldSuddenSpin && wheelCanvas.current) {
+                // Резкое докручивание на 1-3 сегмента вперед
+                const suddenSpinDistance = random.getFloat(60, 180); // от 60 до 180 градусов
+                const suddenSpinDuration = 0.4; // быстрая анимация
+
+                gsap.to(wheelCanvas.current, {
+                  duration: suddenSpinDuration,
+                  ease: 'power2.out',
+                  rotate: endPosition + suddenSpinDistance,
+                  onUpdate: () => {
+                    if (wheelCanvas.current) {
+                      const currentRotation = parseFloat(
+                        /rotate\((.*)deg\)/.exec(wheelCanvas.current.style.transform)?.[1] || '0',
+                      );
+                      onSpin(currentRotation);
+                    }
+                  },
+                  onComplete: () => {
+                    // Останавливаем музыку и воспроизводим звук окончания после докрутки
+                    stopMusic();
+                    playEndSound();
+                    resolve(endPosition + suddenSpinDistance);
+                  },
+                });
+              } else {
+                // Останавливаем музыку при завершении вращения (без докрутки)
+                stopMusic();
+
+                // Воспроизводим звук окончания
+                playEndSound();
+
+                resolve(endPosition);
+              }
             },
             rotate: endPosition,
           });
@@ -53,7 +106,7 @@ export const useWheelAnimator = ({ wheelCanvas, onSpin }: Props): Result => {
         }
       });
     },
-    [onSpin, wheelCanvas],
+    [onSpin, playMusic, stopMusic, playEndSound, wheelCanvas, suddenSpinEnabled, suddenSpinProbability],
   );
 
   return { animate };

@@ -7,14 +7,9 @@ import {
   MantineTheme,
 } from '@mantine/core';
 import { useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { DEFAULT_THEME } from '@mantine/core';
 
-import mantineTheme from '@constants/mantineTheme';
 import { calcUiElementsOpacity } from '@utils/ui/background';
-import { COLORS } from '@constants/color.constants';
-
-import { RootState } from './reducers';
 
 const shadowOpacityMain = 0.12;
 const shadowOpacitySecondary = 0.09;
@@ -35,8 +30,7 @@ const cssResolver: CSSVariablesResolver = (theme) => ({
 });
 
 const MantineProvider = ({ children }: { children: React.ReactNode }) => {
-  const backgroundOverlayOpacity = useSelector((root: RootState) => root.aucSettings.settings.backgroundOverlayOpacity);
-  const backgroundTone = useSelector((root: RootState) => root.aucSettings.settings.backgroundTone);
+  const backgroundOverlayOpacity = 1; // Default value
 
   const theme = useMemo(() => {
     const uiOpacity = calcUiElementsOpacity(backgroundOverlayOpacity);
@@ -50,11 +44,11 @@ const MantineProvider = ({ children }: { children: React.ReactNode }) => {
         Notification: {
           styles: (theme: MantineTheme) => ({
             title: {
-              fontSize: theme.fontSizes.lg, // Increased from default
+              fontSize: theme.fontSizes.lg,
             },
             description: {
-              fontSize: theme.fontSizes.md, // Increased from default (sm)
-              color: 'var(--mantine-color-dark-1)', // Brighter text color
+              fontSize: theme.fontSizes.md,
+              color: 'var(--mantine-color-dark-1)',
             },
           }),
         },

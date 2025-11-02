@@ -28,21 +28,31 @@
   }
 
   .find-icon {
-    position: relative;
+    position: absolute;
     z-index: 10;
-    left: 2px;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%) scale(-1, 1);
     color: white;
-    transform: scale(-1, 1);
   }
 
   .MuiDivider-root {
     border-color: rgba(white, 0.25);
+    position: relative;
+    z-index: 5;
   }
 
   .color {
-    height: 24px;
-    width: 32px;
-    border-radius: 6px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1;
 
     &>div {
       content: '';
@@ -50,19 +60,63 @@
       width: 100%;
       position: absolute;
       top: 0;
-      right: 0;
+      left: 0;
       display: block;
+      transition: filter 0.2s ease;
 
+      // Градиент для обычного цвета
       background: linear-gradient(
-                      90deg,
-                      color-mix(in srgb, currentColor 0%, transparent) 0%,
-                      color-mix(in srgb, currentColor 0%, transparent) 60%,
-                      color-mix(in srgb, currentColor 15%, transparent) 85%,
-                      color-mix(in srgb, currentColor 40%, transparent) 90%,
-                      currentColor 97%,
-                      currentColor 100%
+        90deg,
+        transparent 0%,
+        transparent 20%,
+        color-mix(in srgb, currentColor 20%, transparent) 40%,
+        color-mix(in srgb, currentColor 50%, transparent) 60%,
+        color-mix(in srgb, currentColor 80%, transparent) 80%,
+        currentColor 100%
       );
+
+      &.image-background {
+        // Для изображений убираем градиент фона (изображение задается через inline style)
+        background: none;
+        
+        // Градиентная маска для плавного появления справа
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 20%,
+          rgba(0, 0, 0, 0.2) 40%,
+          rgba(0, 0, 0, 0.5) 60%,
+          rgba(0, 0, 0, 0.8) 80%,
+          rgba(0, 0, 0, 1) 100%
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 20%,
+          rgba(0, 0, 0, 0.2) 40%,
+          rgba(0, 0, 0, 0.5) 60%,
+          rgba(0, 0, 0, 0.8) 80%,
+          rgba(0, 0, 0, 1) 100%
+        );
+      }
     }
+  }
+
+  &.disabled .color > div {
+    // Для всех (и с изображением, и с цветом) показываем серый фон с градиентом
+    background-image: none !important;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 20%,
+      rgba($grey-6, 0.2) 40%,
+      rgba($grey-6, 0.5) 60%,
+      rgba($grey-6, 0.8) 80%,
+      $grey-6 100%
+    ) !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    filter: none;
   }
 
   .name {
@@ -71,14 +125,23 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    position: relative;
+    z-index: 5;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 
   .amount {
     text-align: end;
+    position: relative;
+    z-index: 5;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 
   .chance {
     width: 61px;
     text-align: end;
+    position: relative;
+    z-index: 5;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 }

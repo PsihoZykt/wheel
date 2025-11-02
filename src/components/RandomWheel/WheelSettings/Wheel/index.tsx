@@ -14,6 +14,10 @@ interface Props extends Pick<BaseWheelProps<any>, 'controller'> {
 const WheelComponent = ({ controller, shuffle, deleteItem, finalItems }: Props) => {
   const coreImage = useWatch<Wheel.Settings>({ name: 'coreImage' });
   const format = useWatch<Wheel.Settings>({ name: 'format' });
+  const musicTrackId = useWatch<Wheel.Settings>({ name: 'musicTrackId' });
+  const musicEnabled = useWatch<Wheel.Settings>({ name: 'musicEnabled' });
+  const suddenSpinEnabled = useWatch<Wheel.Settings>({ name: 'suddenSpinEnabled' });
+  const suddenSpinProbability = useWatch<Wheel.Settings>({ name: 'suddenSpinProbability' });
   const { setValue } = useFormContext<Wheel.Settings>();
   const onCoreImageChange = useCallback(
     (image: string) => {
@@ -31,6 +35,10 @@ const WheelComponent = ({ controller, shuffle, deleteItem, finalItems }: Props) 
       items={finalItems}
       onCoreImageChange={onCoreImageChange}
       dropOut={format === WheelFormat.Dropout}
+      musicTrackId={musicTrackId || undefined}
+      musicEnabled={musicEnabled}
+      suddenSpinEnabled={suddenSpinEnabled}
+      suddenSpinProbability={suddenSpinProbability}
     />
   );
 };

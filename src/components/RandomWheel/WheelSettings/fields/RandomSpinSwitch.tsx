@@ -2,7 +2,6 @@ import React from 'react';
 import { IconButton, SxProps, Tooltip } from '@mui/material';
 import CasinoIcon from '@mui/icons-material/Casino';
 import { useController } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 
 const filledStyles: SxProps = [
   { '&:hover': { bgcolor: 'primary.light' } },
@@ -11,10 +10,9 @@ const filledStyles: SxProps = [
 
 const RandomSpinSwitch = () => {
   const { field } = useController({ name: 'randomSpinEnabled' });
-  const { t } = useTranslation();
 
   return (
-    <Tooltip title={t('wheel.randomSpin')}>
+    <Tooltip title="Случайное время прокрута">
       <IconButton
         onClick={() => field.onChange(!field.value)}
         onBlur={field.onBlur}

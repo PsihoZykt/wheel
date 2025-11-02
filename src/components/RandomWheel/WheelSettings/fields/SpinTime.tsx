@@ -1,10 +1,8 @@
 import React from 'react';
 import { Controller } from 'react-hook-form';
 import { Grid, TextField, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 const SpinTimeField = () => {
-  const { t } = useTranslation();
   return (
     <Grid container alignItems='end' spacing={1}>
       <Controller
@@ -14,7 +12,7 @@ const SpinTimeField = () => {
             className='wheel-controls-input'
             variant='outlined'
             margin='dense'
-            label={t('wheel.duration')}
+            label="Длительность"
             type='number'
             onChange={(e) => (e.target.value === '' ? onChange(null) : onChange(Number(e.target.value)))}
             value={Number.isNaN(value) || value == null ? '' : value}

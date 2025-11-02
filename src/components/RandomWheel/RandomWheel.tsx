@@ -15,8 +15,6 @@ import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form
 import { PACE_PRESETS, WheelFormat } from '@constants/wheel.ts';
 import { WheelItem } from '@models/wheel.model.ts';
 import { getTotalSize, random } from '@utils/common.utils.ts';
-import { getRandomNumber } from '@api/randomApi.ts';
-import withLoading from '@decorators/withLoading';
 import { DropoutVariant, WheelController } from '@components/BaseWheel/BaseWheel.tsx';
 import WheelSettings from '@components/RandomWheel/WheelSettings/WheelSettings.tsx';
 import { WheelContextProvider } from '@components/RandomWheel/WheelSettings/WheelContext.tsx';
@@ -31,7 +29,6 @@ export interface SettingElements {
   mode: boolean;
   split: boolean;
   randomPace: boolean;
-  randomOrg: boolean;
   import: boolean;
   preview: boolean;
 }
@@ -40,7 +37,6 @@ const initialAvailableSettings: SettingElements = {
   mode: true,
   split: true,
   randomPace: true,
-  randomOrg: true,
   import: true,
   preview: true,
 };
@@ -61,7 +57,6 @@ const defaultSettings: Wheel.Settings = {
   randomSpinConfig: { min: 20, max: 100 },
   randomSpinEnabled: false,
 
-  useRandomOrg: false,
   format: WheelFormat.Default,
   paceConfig: PACE_PRESETS.suddenFinal,
   split: 1,
@@ -71,6 +66,14 @@ const defaultSettings: Wheel.Settings = {
   depthRestriction: null,
 
   dropoutVariant: DropoutVariant.New,
+
+  // Настройки музыки
+  musicTrackId: localStorage.getItem('wheelMusicTrackId') || 'random',
+  musicEnabled: localStorage.getItem('wheelMusicEnabled') !== 'false', // По умолчанию включено
+
+  // Настройки резкого докручивания
+  suddenSpinEnabled: false,
+  suddenSpinProbability: 50,
 };
 const savedSettings = JSON.parse(localStorage.getItem('wheelSettings') ?? '{}');
 const initialSettings = { ...defaultSettings, ...savedSettings };
@@ -90,7 +93,6 @@ const RandomWheel = <TWheelItem extends WheelItem = WheelItem>({
 }: RandomWheelProps<TWheelItem>): ReactElement => {
   const [itemsFromProps, setItemsFromProps] = useState<WheelItem[]>(_itemsFromProps);
   const elements = useMemo(() => ({ ...initialAvailableSettings, ...elementsFromProps }), [elementsFromProps]);
-  const [isLoadingSeed, setIsLoadingSeed] = useState<boolean>(false);
   const wheelController = useRef<WheelController | null>(null);
   const { handleSubmit, setValue } = useFormContext<Wheel.Settings>();
 
@@ -137,29 +139,32 @@ const RandomWheel = <TWheelItem extends WheelItem = WheelItem>({
     init?.(filteredItems);
   }, [init, filteredItems]);
 
-  const getSeed = useCallback(async () => {
-    const totalSize = getTotalSize(items);
-    const size = totalSize > 5000 ? totalSize : totalSize + 10000;
-    const seed = await withLoading(setIsLoadingSeed, getRandomNumber)(1, size).catch(() => undefined);
+  const onSpinClick = useCallback(async () => {
+    const spinConfig = onSpinStart?.();
+    const { min, max } = randomSpinConfig!;
+    const duration = randomSpinEnabled ? random.getInt(min!, max!) : spinTime;
+    const winner = await wheelController.current?.spin({
+      duration: duration,
+      ...spinConfig,
+    });
+    await onSpinEnd?.(winner);
 
-    return seed && seed / size;
-  }, [items]);
+    // Записываем выпадение в историю постоянных участников
+    if (winner && (window as any).__recordPermanentParticipantWin) {
+      try {
+        (window as any).__recordPermanentParticipantWin(winner.name);
 
-  const onSpinClick = useCallback(
-    async ({ useRandomOrg }: Wheel.Settings) => {
-      const spinConfig = onSpinStart?.();
-      const { min, max } = randomSpinConfig!;
-      const duration = randomSpinEnabled ? random.getInt(min!, max!) : spinTime;
-      const winner = await wheelController.current?.spin({
-        seed: useRandomOrg ? await getSeed() : undefined,
-        duration: duration,
-        ...spinConfig,
-      });
-      await onSpinEnd?.(winner);
-      winner && onWin?.(winner as TWheelItem);
-    },
-    [getSeed, onSpinEnd, onSpinStart, onWin, randomSpinConfig, randomSpinEnabled, spinTime],
-  );
+        // Если включен автоматический пересчет весов - пересчитываем
+        if ((window as any).__autoRecalculateWeights) {
+          (window as any).__autoRecalculateWeights();
+        }
+      } catch (error) {
+        console.error('Ошибка при записи выпадения:', error);
+      }
+    }
+
+    winner && onWin?.(winner as TWheelItem);
+  }, [onSpinEnd, onSpinStart, onWin, randomSpinConfig, randomSpinEnabled, spinTime]);
 
   const split = useWatch<Wheel.Settings>({ name: 'split' });
   const maxSize = useMemo(() => Math.max(...items.map<number>(({ amount }) => Number(amount))), [items]);
@@ -194,7 +199,6 @@ const RandomWheel = <TWheelItem extends WheelItem = WheelItem>({
           <div className={classNames('wheel-controls')}>
             <WheelSettings
               direction={content ? 'row' : 'column'}
-              isLoadingSeed={isLoadingSeed}
               controls={elements}
               renderSubmitButton={renderSubmitButton}
             >

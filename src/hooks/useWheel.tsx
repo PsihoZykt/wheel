@@ -2,7 +2,6 @@ import { CSSProperties, Key, ReactNode, useCallback, useEffect, useMemo, useRef,
 import gsap from 'gsap';
 import { Button, Dialog, DialogActions, DialogContent, Link, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import CustomEase from '@utils/CustomEase.js';
@@ -68,7 +67,6 @@ const useWheel = ({
   isShuffle = true,
 }: WheelConfig): WheelResult => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
   const canvas = useRef<HTMLCanvasElement>(null);
   const wheelSelector = useRef<HTMLCanvasElement>(null);
   const spinTarget = useRef<HTMLDivElement>(null);
@@ -273,9 +271,9 @@ const useWheel = ({
     setWinnerItem(undefined);
 
     if (spinTarget.current) {
-      spinTarget.current.innerHTML = t('wheel.winner');
+      spinTarget.current.innerHTML = 'Результат';
     }
-  }, [t]);
+  }, []);
 
   const circleStyles: CSSProperties = useMemo(() => {
     const size = offset * 0.2;
@@ -301,7 +299,7 @@ const useWheel = ({
     if (deleteItem && winnerItem) {
       deleteItem(winnerItem.id);
       toggleDialog();
-      dispatch(addAlert({ type: AlertTypeEnum.Success, message: t('wheel.lotWasDeleted') }));
+      dispatch(addAlert({ type: AlertTypeEnum.Success, message: 'лот был удален' }));
     }
   };
 
@@ -312,16 +310,16 @@ const useWheel = ({
     >
       <Dialog open={dialogOpen} onClose={toggleDialog}>
         <DialogContent>
-          <Typography>{t('wheel.lotDeleteWarning')}</Typography>
+          <Typography>Это действие удалит лот не только из колеса, но и из самого аукциона.</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={deleteWinner} variant='outlined' color='secondary'>
-            {t('wheel.delete')}
+            Удалить
           </Button>
         </DialogActions>
       </Dialog>
       <div style={{ width: offset }} className='wheel-target' ref={spinTarget}>
-        {t('wheel.winner')}
+        Результат
       </div>
       <canvas style={{ position: 'absolute', zIndex: 1 }} ref={wheelSelector} />
       <canvas ref={canvas} />
@@ -337,7 +335,7 @@ const useWheel = ({
           )}
           {deleteItem && !dropout && (
             <Button onClick={toggleDialog} variant='outlined' color='secondary'>
-              {t('wheel.deleteLot')}
+              Удалить лот
             </Button>
           )}
         </div>

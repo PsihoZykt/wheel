@@ -1,7 +1,6 @@
 import React from 'react';
 import { Slider, Typography } from '@mui/material';
 import { Controller } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 
 import Hint from '@components/Hint';
 
@@ -10,13 +9,12 @@ interface Props {
 }
 
 const Nesting = ({ maxDepth }: Props) => {
-  const { t } = useTranslation();
   return (
     <>
       <div className='wheel-controls-row'>
         <Typography className='wheel-controls-tip md'>
-          {t('wheel.nesting')}
-          <Hint text={t('wheel.nestingDesc')} />
+          Вложенность
+          <Hint text="группирует дешевые лоты, чтобы уменьшить кол-во прокрутов" />
         </Typography>
         <Controller
           render={({ field: { onChange, value } }) => (

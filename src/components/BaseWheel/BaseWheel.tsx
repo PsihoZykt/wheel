@@ -8,9 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 import gsap from 'gsap';
-import { Overlay, Popover, Stack, Text } from '@mantine/core';
 
 import { WheelItem, WheelItemWithAngle } from '@models/wheel.model.ts';
 import { getRandomInclusive, random, shuffle } from '@utils/common.utils.ts';
@@ -20,7 +18,6 @@ import pradenW from '@assets/img/pradenW.png';
 import { useWheelDrawer } from '@components/BaseWheel/hooks/useWheelDrawer.ts';
 import { useWheelAnimator } from '@components/BaseWheel/hooks/useWheelAnimator.ts';
 import WinnerBackdrop from '@components/BaseWheel/WinnerBackdrop.tsx';
-import TwitchEmotesList from '@components/TwitchEmotesList/TwitchEmotesList';
 import ImageLinkInput from '@components/Form/ImageLinkInput/ImageLinkInput';
 import '@components/BaseWheel/BaseWheel.scss';
 
@@ -56,13 +53,29 @@ export interface BaseWheelProps<T extends WheelItem> {
   resetWheel?: boolean;
   delay?: number;
   dropOut?: boolean;
+  musicTrackId?: string | null;
+  musicEnabled?: boolean;
+  suddenSpinEnabled?: boolean;
+  suddenSpinProbability?: number;
 }
 
 const calculateFixedAngle = (duration: number): number => duration * 270;
 
 const BaseWheel = <T extends WheelItem>(props: BaseWheelProps<T>) => {
-  const { items, resetWheel, deleteItem, isShuffle, controller, coreImage, onCoreImageChange, dropOut } = props;
-  const { t } = useTranslation();
+  const {
+    items,
+    resetWheel,
+    deleteItem,
+    isShuffle,
+    controller,
+    coreImage,
+    onCoreImageChange,
+    dropOut,
+    musicTrackId,
+    musicEnabled = true,
+    suddenSpinEnabled = false,
+    suddenSpinProbability = 50,
+  } = props;
   const { drawWheel, highlightItem, eatAnimation } = useWheelDrawer();
 
   const [winnerItem, setWinnerItem] = useState<WheelItem | undefined>();
@@ -154,7 +167,14 @@ const BaseWheel = <T extends WheelItem>(props: BaseWheelProps<T>) => {
     return (1 - x) * 360 + 270;
   };
 
-  const { animate } = useWheelAnimator({ wheelCanvas, onSpin: onSpinTick });
+  const { animate } = useWheelAnimator({
+    wheelCanvas,
+    onSpin: onSpinTick,
+    musicTrackId,
+    musicEnabled,
+    suddenSpinEnabled,
+    suddenSpinProbability,
+  });
   const spinToWinner = useCallback(
     async (winner: Key, duration: number) => {
       const localSpin = distanceTo(winner);
@@ -200,9 +220,9 @@ const BaseWheel = <T extends WheelItem>(props: BaseWheelProps<T>) => {
     setWinnerItem(undefined);
 
     if (spinTarget.current) {
-      spinTarget.current.innerHTML = t('wheel.winner');
+      spinTarget.current.innerHTML = 'Победитель';
     }
-  }, [t]);
+  }, []);
 
   useImperativeHandle(
     controller,
@@ -235,41 +255,36 @@ const BaseWheel = <T extends WheelItem>(props: BaseWheelProps<T>) => {
     [clearWinner, controller, resetPosition, spin, normalizedItems],
   );
 
-  const [isClickOusideAllowed, setIsClickOusideAllowed] = useState(true);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   return (
     <div style={{ width: '0', height: '100%', display: 'inline-block', pointerEvents: 'none' }} ref={wrapper}>
       <div className='wheel-target' ref={spinTarget}>
-        {t('wheel.winner')}
+        Результат
       </div>
       <div className='wheel-content'>
         <canvas style={{ position: 'absolute', zIndex: 1 }} ref={selectorCanvas} />
         <canvas ref={wheelCanvas} />
         {onCoreImageChange && (
-          <Popover width={420} withArrow position='right' closeOnClickOutside={isClickOusideAllowed}>
-            <Popover.Target>
-              <div className='wheel-core' style={{ backgroundImage: coreBackground }}>
-                <div className='wheel-core-overlay'>
-                  <Overlay color='black' opacity={0.7} />
-                  <Text className='wheel-core-text' size='xl'>
-                    {t('wheel.coreImage.wheelOverlay')}
-                  </Text>
-                </div>
+          <>
+            <div
+              className='wheel-core'
+              style={{ backgroundImage: coreBackground, cursor: 'pointer' }}
+              onClick={() => setIsImageModalOpen(true)}
+            >
+              <div className='wheel-core-overlay'>
+                <div className='wheel-core-text'>Изменить</div>
               </div>
-            </Popover.Target>
-            <Popover.Dropdown mah={430} p={8} className='wheel-core-emotes-list'>
-              <Stack gap={0}>
-                <ImageLinkInput
-                  dialogTitle={t('wheel.coreImage.customImageDialogTitle')}
-                  buttonTitle={t('wheel.loadCustomMessage')}
-                  buttonClass='upload-wheel-image'
-                  onChange={onCoreImageChange}
-                  onModalOpenChange={(isOpened) => setIsClickOusideAllowed(!isOpened)}
-                />
-                <TwitchEmotesList setActiveEmote={onCoreImageChange} />
-              </Stack>
-            </Popover.Dropdown>
-          </Popover>
+            </div>
+            <ImageLinkInput
+              dialogTitle='Добавьте свое изображение для колеса'
+              onChange={onCoreImageChange}
+              isOpened={isImageModalOpen}
+              onOpen={() => setIsImageModalOpen(true)}
+              onModalOpenChange={setIsImageModalOpen}
+              hideButton={true}
+            />
+          </>
         )}
         {!!winnerItem && (
           <WinnerBackdrop
