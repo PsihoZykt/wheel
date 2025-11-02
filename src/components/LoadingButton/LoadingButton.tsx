@@ -6,7 +6,7 @@ interface LoadingButtonProps extends ButtonProps {
   isLoading: boolean;
 }
 
-const LoadingButton: React.FC<LoadingButtonProps> = ({ isLoading, children, ...buttonProps }) => {
+const LoadingButton: React.FC<LoadingButtonProps> = ({ isLoading = false, children, ...buttonProps }) => {
   return (
     <Button {...buttonProps} disabled={isLoading || buttonProps.disabled}>
       {children}

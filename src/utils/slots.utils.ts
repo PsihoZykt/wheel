@@ -1,7 +1,6 @@
 import { Key } from 'react';
 
 import { Slot } from '../models/slot.model';
-import { Purchase } from '../reducers/Purchases/Purchases';
 import { Game, Side, SideInfo } from '../components/Bracket/components/model';
 import { WheelItem } from '../models/wheel.model';
 

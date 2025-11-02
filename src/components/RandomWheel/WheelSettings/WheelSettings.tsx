@@ -22,7 +22,7 @@ import PermanentParticipantsField from './fields/PermanentParticipants';
 
 interface WheelSettingsProps {
   nextWinner?: string;
-  isLoadingSeed: boolean;
+  isLoadingSeed?: boolean;
   controls: Wheel.SettingControls;
   children: ReactNode;
   renderSubmitButton?: (defaultButton: ReactNode) => ReactNode;
@@ -40,7 +40,7 @@ const WheelSettings = (props: WheelSettingsProps) => {
 
   const submitButton = (
     <LoadingButton
-      isLoading={isLoadingSeed}
+      isLoading={isLoadingSeed ?? false}
       disabled={isSubmitting}
       className='wheel-controls-button'
       variant='contained'
