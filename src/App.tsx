@@ -32,9 +32,9 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Redirect from / to /wheel
+  // Redirect to home if needed
   useEffect(() => {
-    if (pathname === '/') {
+    if (pathname === '/' || pathname === '/wheel') {
       navigate(ROUTES.HOME, { replace: true });
     }
   }, [pathname, navigate]);

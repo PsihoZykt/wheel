@@ -85,7 +85,7 @@ root.render(
     <ThemeWrapper>
       <MantineProvider>
         <Notifications />
-        <BrowserRouter>
+        <BrowserRouter basename="/wheel">
           <App />
         </BrowserRouter>
       </MantineProvider>

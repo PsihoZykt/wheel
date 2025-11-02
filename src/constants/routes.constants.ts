@@ -1,5 +1,5 @@
 const ROUTES = {
-  HOME: '/wheel',
+  HOME: '/',
   STATISTICS: '/statistics',
   SETTINGS: '/settings',
   INTEGRATIONS: '/settings/integrations',
